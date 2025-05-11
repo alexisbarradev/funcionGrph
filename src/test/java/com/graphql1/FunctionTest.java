@@ -21,7 +21,7 @@ public class FunctionTest {
     public void testGetUsersByRoleQuery() throws Exception {
         final HttpRequestMessage<Optional<String>> req = mock(HttpRequestMessage.class);
         final Optional<String> body = Optional.of(
-                "{ \"query\": \"query { getUsersByRole(role: \\\"ADMIN\\\") { id username email role } }\" }"
+            "{ \"query\": \"query { getUsersByRole(role: \\\"ADMIN\\\") { id username email role_id } }\" }"
         );
         doReturn(body).when(req).getBody();
 
@@ -38,6 +38,7 @@ public class FunctionTest {
 
         assertEquals(HttpStatus.OK, response.getStatus());
         assertTrue(response.getBody().toString().contains("admin1@mail.com"));
+        assertTrue(response.getBody().toString().contains("role_id"));
     }
 
     @Test
@@ -45,9 +46,8 @@ public class FunctionTest {
         final HttpRequestMessage<Optional<String>> req = mock(HttpRequestMessage.class);
 
         // Step 1: Mutation - logRoleChange
-String mutation = "{ \"query\": \"mutation { logRoleChange(userId: \\\"99\\\", username: \\\"testuser\\\", oldRole: \\\"GUEST\\\", newRole: \\\"ADMIN\\\") { id changedAt username } }\" }";
-doReturn(Optional.of(mutation)).when(req).getBody();
-
+        String mutation = "{ \"query\": \"mutation { logRoleChange(userId: \\\"99\\\", username: \\\"testuser\\\", oldRole: \\\"GUEST\\\", newRole: \\\"ADMIN\\\") { id changedAt username } }\" }";
+        doReturn(Optional.of(mutation)).when(req).getBody();
 
         doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
             HttpStatus status = (HttpStatus) invocation.getArguments()[0];

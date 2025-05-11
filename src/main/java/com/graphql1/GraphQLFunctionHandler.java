@@ -1,4 +1,3 @@
-// Archivo: GraphQLFunctionHandler.java
 package com.graphql1;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,10 +16,10 @@ public class GraphQLFunctionHandler {
 
     private List<Map<String, Object>> fetchAllUsers() {
         return List.of(
-            Map.of("id", 1, "username", "admin1", "email", "admin1@mail.com", "role", "ADMIN"),
-            Map.of("id", 2, "username", "user1", "email", "user1@mail.com", "role", "USER"),
-            Map.of("id", 3, "username", "admin2", "email", "admin2@mail.com", "role", "ADMIN"),
-            Map.of("id", 4, "username", "guest1", "email", "guest1@mail.com", "role", "GUEST")
+            Map.of("id", 1, "username", "admin1", "email", "admin1@mail.com", "role_id", "ADMIN"),
+            Map.of("id", 2, "username", "user1", "email", "user1@mail.com", "role_id", "USER"),
+            Map.of("id", 3, "username", "admin2", "email", "admin2@mail.com", "role_id", "ADMIN"),
+            Map.of("id", 4, "username", "guest1", "email", "guest1@mail.com", "role_id", "GUEST")
         );
     }
 
@@ -77,13 +76,13 @@ public class GraphQLFunctionHandler {
 
     private String getSimpleSchema() {
         return "type Query { getUsersByRole(role: String!): [User] }\n" +
-               "type User { id: ID username: String email: String role: String }";
+               "type User { id: ID username: String email: String role_id: String }";
     }
 
     private String getExtendedSchema() {
         return "type Query { getUsersByRole(role: String!): [User] getRoleChangeAuditLog: [RoleChange] }\n" +
                "type Mutation { logRoleChange(userId: ID!, username: String!, oldRole: String!, newRole: String!): RoleChange }\n" +
-               "type User { id: ID username: String email: String role: String }\n" +
+               "type User { id: ID username: String email: String role_id: String }\n" +
                "type RoleChange { id: ID userId: ID username: String oldRole: String newRole: String changedAt: String }";
     }
 
@@ -92,7 +91,7 @@ public class GraphQLFunctionHandler {
             .type("Query", builder -> builder.dataFetcher("getUsersByRole", env -> {
                 String roleArg = env.getArgument("role");
                 return fetchAllUsers().stream()
-                        .filter(user -> roleArg.equalsIgnoreCase((String) user.get("role")))
+                        .filter(user -> roleArg.equalsIgnoreCase((String) user.get("role_id")))
                         .collect(Collectors.toList());
             }))
             .build();
@@ -104,7 +103,7 @@ public class GraphQLFunctionHandler {
                 .dataFetcher("getUsersByRole", env -> {
                     String roleArg = env.getArgument("role");
                     return fetchAllUsers().stream()
-                            .filter(user -> roleArg.equalsIgnoreCase((String) user.get("role")))
+                            .filter(user -> roleArg.equalsIgnoreCase((String) user.get("role_id")))
                             .collect(Collectors.toList());
                 })
                 .dataFetcher("getRoleChangeAuditLog", env -> auditLog)
